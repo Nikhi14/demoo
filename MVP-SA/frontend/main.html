@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #4a5568;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin: 25px 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-color: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .status-error {
+            background: rgba(245, 101, 101, 0.1);
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .status-info {
+            background: rgba(102, 126, 234, 0.1);
+            color: #2d3748;
+            border-left: 4px solid #667eea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Interview Styles */
+        .interview-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .question-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            font-size: 1.3em;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .question-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.6s ease;
+            border-radius: 6px;
+        }
+
+        .answer-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .video-container {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .metrics-panel {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .rating-display {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .rating-score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .interview-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Interview System</h1>
+            <p>Professional interview platform with AI analysis and real-time tracking</p>
+        </div>
+
+        <!-- Backend Status -->
+        <div id="backend-status" class="status status-info">
+            🔄 Connecting to backend...
+        </div>
+
+        <!-- Setup Section -->
+        <div id="setup-section" class="section">
+            <h2>📄 Document Upload</h2>
+            
+            <div class="file-upload-area" onclick="document.getElementById('resumeFile').click()">
+                <h3>📄 Upload Resume (PDF)</h3>
+                <p style="color: #718096; margin: 10px 0;">Click to select your resume file</p>
+                <input type="file" id="resumeFile" class="file-input" accept=".pdf">
+                <div class="file-label">📁 Choose Resume File</div>
+                <div id="resumeStatus"></div>
+            </div>
+
+            <div class="file-upload-area" onclick="document.getElementById('jdFile').click()">
+                <h3>📋 Upload Job Description (PDF)</h3>
+                <p style="color: #718096; margin: 10px 0;">Click to select job description file</p>
+                <input type="file" id="jdFile" class="file-input" accept=".pdf">
+                <div class="file-label">📁 Choose JD File</div>
+                <div id="jdStatus"></div>
+            </div>
+
+            <div class="controls">
+                <button id="processBtn" class="btn btn-primary" disabled>
+                    🤖 Process Files & Generate Questions
+                </button>
+            </div>
+
+            <div id="questionsPreview" class="hidden">
+                <h3>📋 Generated Questions Preview</h3>
+                <div id="questionsList"></div>
+                <div class="controls">
+                    <button id="startInterviewBtn" class="btn btn-success">
+                        🎬 Start Interview
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Section -->
+        <div id="interview-section" class="section hidden">
+            <h2>🎤 Interview in Progress</h2>
+            
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+
+            <div class="interview-layout">
+                <div class="main-content">
+                    <div id="questionDisplay" class="question-display">
+                        <div class="question-meta">
+                            <span class="question-type">Loading...</span>
+                            <span>Question <span id="questionNumber">1</span> of <span id="totalQuestions">10</span></span>
+                        </div>
+                        <div id="questionText">
+                            <strong>Loading your personalized question...</strong>
+                        </div>
+                    </div>
+
+                    <div class="answer-section">
+                        <label for="answerInput" style="display: block; margin-bottom: 10px; font-weight: 600; color: #4a5568;">
+                            ✍️ Your Answer:
+                        </label>
+                        <textarea id="answerInput" class="answer-input" 
+                                placeholder="Type your detailed answer here. Be specific and provide examples where relevant..."></textarea>
+                    </div>
+
+                    <div class="controls">
+                        <button id="recordBtn" class="btn btn-danger">
+                            🎙️ Record Voice
+                        </button>
+                        <button id="submitBtn" class="btn btn-success">
+                            ✅ Submit Answer
+                        </button>
+                        <button id="nextBtn" class="btn btn-primary" disabled>
+                            ➡️ Next Question
+                        </button>
+                        <button id="endBtn" class="btn btn-warning">
+                            🏁 End Interview
+                        </button>
+                    </div>
+
+                    <div style="background: rgba(102, 126, 234, 0.05); padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.9em; color: #4a5568;">
+                        <strong>💡 Recording Tips:</strong>
+                        <ul style="margin: 8px 0 0 20px; line-height: 1.6;">
+                            <li>Click "🎙️ Record Voice" to start speaking</li>
+                            <li>Your speech will automatically appear in the text box</li>
+                            <li>You can edit the text after recording</li>
+                            <li>Works best in Chrome/Edge browsers</li>
+                            <li>Make sure to allow microphone permissions</li>
+                        </ul>
+                    </div>
+
+                    <div id="ratingDisplay" class="rating-display hidden">
+                        <div class="rating-score">Score: <span id="currentScore">0</span>/10</div>
+                        <div id="ratingFeedback"></div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="video-container">
+                        <video id="videoElement" autoplay muted></video>
+                    </div>
+
+                    <div class="metrics-panel">
+                        <h3>📊 Real-time Tracking</h3>
+                        <div class="metric">
+                            <span>👁️ Eye Contact:</span>
+                            <span id="eyeContactScore" class="metric-value">0%</span>
+                        </div>
+                        <div class="metric">
+                            <span>👤 Face Visibility:</span>
+                            <span id="faceVisibility" class="metric-value">0%</span>
+                        </div>
+                        <div class="metric">
+                            <span>📍 Head Position:</span>
+                            <span id="headPosition" class="metric-value">Center</span>
+                        </div>
+                        <div class="metric">
+                            <span>🎙️ Recording:</span>
+                            <span id="recordingStatus" class="metric-value">Ready</span>
+                        </div>
+                    </div>
+
+                    <button id="cameraBtn" class="btn btn-primary" style="width: 100%;">
+                        📹 Start Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="section hidden">
+            <h2>📊 Interview Results</h2>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); 
+                           display: flex; align-items: center; justify-content: center; margin: 0 auto; color: white; font-size: 24px; font-weight: bold;">
+                    <span id="overallScore">0/10</span>
+                </div>
+            </div>
+
+            <div id="detailedResults">
+                <!-- Results will be populated here -->
+            </div>
+
+            <div class="controls">
+                <button id="newInterviewBtn" class="btn btn-primary">
+                    🔄 New Interview
+                </button>
+                <button id="exportBtn" class="btn btn-success">
+                    💾 Export Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000/api';
+        
+        // Global variables
+        let sessionId = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let isRecording = false;
+        let mediaRecorder = null;
+        let videoStream = null;
+        let trackingInterval = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkBackendStatus();
+            checkCameraPermissions(); // Check camera permissions on load
+            bindEvents();
+        });
+
+        // Check backend connectivity
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                if (response.ok) {
+                    showStatus('backend-status', 'success', '✅ Backend connected - Ready to start!');
+                } else {
+                    showStatus('backend-status', 'error', '❌ Backend error - Check server status');
+                }
+            } catch (error) {
+                showStatus('backend-status', 'error', '❌ Cannot connect to backend. Make sure Flask server is running on port 5000');
+            }
+        }
+
+        // Bind event listeners
+        function bindEvents() {
+            document.getElementById('resumeFile').addEventListener('change', handleResumeUpload);
+            document.getElementById('jdFile').addEventListener('change', handleJDUpload);
+            document.getElementById('processBtn').addEventListener('click', processFilesAndGenerate);
+            document.getElementById('startInterviewBtn').addEventListener('click', startInterview);
+            document.getElementById('recordBtn').addEventListener('click', toggleRecording);
+            document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+            document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+            document.getElementById('endBtn').addEventListener('click', endInterview);
+            document.getElementById('cameraBtn').addEventListener('click', toggleCamera);
+            document.getElementById('newInterviewBtn').addEventListener('click', newInterview);
+            document.getElementById('exportBtn').addEventListener('click', exportResults);
+        }
+
+        // Handle resume upload
+        async function handleResumeUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showStatus('resumeStatus', 'info', '📄 Resume selected: ' + file.name);
+                checkProcessButton();
+            }
+        }
+
+        // Handle JD upload
+        async function handleJDUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showStatus('jdStatus', 'info', '📋 Job description selected: ' + file.name);
+                checkProcessButton();
+            }
+        }
+
+        // Check if process button should be enabled
+        function checkProcessButton() {
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const jdFile = document.getElementById('jdFile').files[0];
+            document.getElementById('processBtn').disabled = !(resumeFile && jdFile);
+        }
+
+        // Process files and generate questions
+        async function processFilesAndGenerate() {
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const jdFile = document.getElementById('jdFile').files[0];
+
+            if (!resumeFile || !jdFile) {
+                alert('Please select both resume and job description files');
+                return;
+            }
+
+            const processBtn = document.getElementById('processBtn');
+            processBtn.disabled = true;
+            processBtn.innerHTML = '🔄 Processing...';
+
+            try {
+                // Upload files
+                const formData = new FormData();
+                formData.append('resume', resumeFile);
+                formData.append('job_description', jdFile);
+
+                const uploadResponse = await fetch(`${BACKEND_URL}/upload-files`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('File upload failed');
+                }
+
+                const uploadResult = await uploadResponse.json();
+                sessionId = uploadResult.session_id;
+
+                showStatus('resumeStatus', 'success', '✅ Files processed successfully!');
+                showStatus('jdStatus', 'success', `📋 Session: ${sessionId.substring(0, 8)}...`);
+
+                // Generate questions
+                processBtn.innerHTML = '🤖 Generating Questions...';
+
+                const questionsResponse = await fetch(`${BACKEND_URL}/generate-questions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                });
+
+                if (!questionsResponse.ok) {
+                    throw new Error('Question generation failed');
+                }
+
+                const questionsResult = await questionsResponse.json();
+                questions = questionsResult.questions;
+
+                displayQuestionsPreview();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing files: ' + error.message);
+            } finally {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '🤖 Process Files & Generate Questions';
+            }
+        }
+
+        // Display questions preview
+        function displayQuestionsPreview() {
+            const preview = document.getElementById('questionsPreview');
+            const questionsList = document.getElementById('questionsList');
+            
+            questionsList.innerHTML = questions.slice(0, 3).map((q, i) => `
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 10px; margin: 10px 0;">
+                    <strong>${i + 1}. [${q.type?.toUpperCase() || 'GENERAL'}]</strong><br>
+                    ${q.question}
+                </div>
+            `).join('');
+
+            if (questions.length > 3) {
+                questionsList.innerHTML += `<p style="text-align: center; color: #666; margin: 15px 0;">... and ${questions.length - 3} more questions</p>`;
+            }
+
+            preview.classList.remove('hidden');
+        }
+
+        // Start interview
+        async function startInterview() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/start-interview`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('setup-section').classList.add('hidden');
+                    document.getElementById('interview-section').classList.remove('hidden');
+                    currentQuestionIndex = 0;
+                    displayCurrentQuestion();
+                    updateProgress();
+                } else {
+                    alert('Failed to start interview');
+                }
+            } catch (error) {
+                alert('Error starting interview: ' + error.message);
+            }
+        }
+
+        // Display current question
+        function displayCurrentQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endInterview();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            
+            document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.querySelector('.question-type').textContent = question.type?.toUpperCase() || 'GENERAL';
+            document.getElementById('questionText').innerHTML = `<strong>${question.question}</strong>`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('ratingDisplay').classList.add('hidden');
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Toggle camera with better error handling
+        async function toggleCamera() {
+            const cameraBtn = document.getElementById('cameraBtn');
+            const videoElement = document.getElementById('videoElement');
+
+            if (!videoStream) {
+                try {
+                    // Check if browser supports getUserMedia
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        alert('❌ Your browser does not support camera access. Please use Chrome, Firefox, or Edge.');
+                        return;
+                    }
+
+                    // Show loading state
+                    cameraBtn.innerHTML = '🔄 Connecting...';
+                    cameraBtn.disabled = true;
+
+                    // Request camera access with specific constraints
+                    videoStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 640 },
+                            height: { ideal: 480 },
+                            facingMode: 'user' // Front-facing camera
+                        }, 
+                        audio: true 
+                    });
+                    
+                    videoElement.srcObject = videoStream;
+                    cameraBtn.innerHTML = '⏹️ Stop Camera';
+                    cameraBtn.disabled = false;
+                    
+                    // Start tracking updates
+                    trackingInterval = setInterval(updateTrackingMetrics, 1000);
+                    
+                    // Show success message
+                    showCameraStatus('success', '✅ Camera connected successfully!');
+                    
+                } catch (error) {
+                    console.error('Camera error:', error);
+                    cameraBtn.innerHTML = '📹 Start Camera';
+                    cameraBtn.disabled = false;
+                    
+                    // Handle different types of errors
+                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                        showCameraInstructions();
+                    } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                        showCameraStatus('error', '❌ No camera found. Please connect a camera and try again.');
+                    } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                        showCameraStatus('error', '❌ Camera is being used by another application. Please close other camera apps and try again.');
+                    } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+                        // Try with less specific constraints
+                        tryBasicCamera();
+                    } else {
+                        showCameraStatus('error', '❌ Camera error: ' + error.message);
+                    }
+                }
+            } else {
+                // Stop camera
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                videoElement.srcObject = null;
+                cameraBtn.innerHTML = '📹 Start Camera';
+                
+                // Stop tracking updates
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                    trackingInterval = null;
+                }
+                
+                showCameraStatus('info', '📷 Camera stopped');
+            }
+        }
+
+        // Try camera with basic constraints if detailed constraints fail
+        async function tryBasicCamera() {
+            const cameraBtn = document.getElementById('cameraBtn');
+            const videoElement = document.getElementById('videoElement');
+            
+            try {
+                // Try with minimal constraints
+                videoStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                videoElement.srcObject = videoStream;
+                cameraBtn.innerHTML = '⏹️ Stop Camera';
+                trackingInterval = setInterval(updateTrackingMetrics, 1000);
+                showCameraStatus('success', '✅ Camera connected with basic settings!');
+                
+            } catch (error) {
+                showCameraStatus('error', '❌ Camera still not accessible: ' + error.message);
+            }
+        }
+
+        // Show camera instructions for permission issues
+        function showCameraInstructions() {
+            const instructions = `
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                    <h4>📹 Camera Permission Required</h4>
+                    <p style="margin: 10px 0;"><strong>To enable camera access:</strong></p>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>🌐 Chrome/Edge:</strong>
+                        <ol style="margin: 5px 0 0 20px;">
+                            <li>Click the camera icon 📹 in the address bar</li>
+                            <li>Select "Always allow" for camera access</li>
+                            <li>Refresh the page and try again</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>🦊 Firefox:</strong>
+                        <ol style="margin: 5px 0 0 20px;">
+                            <li>Click the camera icon in the address bar</li>
+                            <li>Select "Allow" and check "Remember this decision"</li>
+                            <li>Refresh and try again</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>🍎 Safari:</strong>
+                        <ol style="margin: 5px 0 0 20px;">
+                            <li>Go to Safari → Preferences → Websites → Camera</li>
+                            <li>Set this website to "Allow"</li>
+                            <li>Note: Safari requires HTTPS for camera access</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>💡 Alternative Solutions:</strong>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li>Try opening in an incognito/private window</li>
+                            <li>Clear browser cache and cookies</li>
+                            <li>Use HTTPS instead of HTTP: <code>https://localhost:8000</code></li>
+                            <li>Try a different browser (Chrome recommended)</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="this.parentElement.remove(); toggleCamera();" class="btn btn-primary" style="margin-top: 15px;">
+                        🔄 Try Camera Again
+                    </button>
+                </div>
+            `;
+            
+            // Add instructions to the sidebar
+            const sidebar = document.querySelector('.sidebar');
+            const existingInstructions = sidebar.querySelector('.camera-instructions');
+            if (existingInstructions) {
+                existingInstructions.remove();
+            }
+            
+            const instructionsDiv = document.createElement('div');
+            instructionsDiv.className = 'camera-instructions';
+            instructionsDiv.innerHTML = instructions;
+            sidebar.appendChild(instructionsDiv);
+        }
+
+        // Show camera status messages
+        function showCameraStatus(type, message) {
+            // Remove existing status
+            const existingStatus = document.querySelector('.camera-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            // Add new status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `camera-status status status-${type}`;
+            statusDiv.style.marginBottom = '15px';
+            statusDiv.textContent = message;
+            
+            const sidebar = document.querySelector('.sidebar');
+            const videoContainer = sidebar.querySelector('.video-container');
+            videoContainer.parentNode.insertBefore(statusDiv, videoContainer.nextSibling);
+            
+            // Auto-remove success/info messages after 5 seconds
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    if (statusDiv.parentNode) {
+                        statusDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // Check camera permissions on page load
+        async function checkCameraPermissions() {
+            if (navigator.permissions && navigator.permissions.query) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'camera' });
+                    
+                    if (result.state === 'granted') {
+                        showCameraStatus('success', '✅ Camera permissions granted');
+                    } else if (result.state === 'denied') {
+                        showCameraStatus('error', '❌ Camera permissions denied. Click "Start Camera" to request access.');
+                    } else {
+                        showCameraStatus('info', '📷 Camera permissions not set. Click "Start Camera" to request access.');
+                    }
+                } catch (error) {
+                    console.log('Permission query not supported');
+                }
+            }
+        }
+
+        // Update tracking metrics
+        async function updateTrackingMetrics() {
+            if (!sessionId) return;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/get-tracking-data/${sessionId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.tracking_data && data.tracking_data.length > 0) {
+                        const latest = data.tracking_data[data.tracking_data.length - 1];
+                        
+                        document.getElementById('eyeContactScore').textContent = 
+                            (latest.eye_contact_score || 0).toFixed(1) + '%';
+                        document.getElementById('faceVisibility').textContent = 
+                            (latest.face_visibility || 0).toFixed(1) + '%';
+                        
+                        const headPose = latest.head_pose || {};
+                        const yaw = headPose.yaw || 0;
+                        let headPosition = 'Center';
+                        if (Math.abs(yaw) > 20) {
+                            headPosition = yaw < 0 ? 'Left' : 'Right';
+                        }
+                        document.getElementById('headPosition').textContent = headPosition;
+                    }
+                }
+            } catch (error) {
+                console.error('Tracking update error:', error);
+            }
+        }
+
+        // Toggle recording with speech-to-text
+        function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordingStatus = document.getElementById('recordingStatus');
+            const answerInput = document.getElementById('answerInput');
+
+            if (!isRecording) {
+                // Start recording
+                if (videoStream) {
+                    startSpeechToText();
+                } else {
+                    // Try to start recording without video stream
+                    startAudioOnlyRecording();
+                }
+            } else {
+                // Stop recording
+                stopSpeechToText();
+            }
+        }
+
+        // Start speech-to-text recognition
+        function startSpeechToText() {
+            const recordBtn = document.getElementById('recordBtn');
+            const recordingStatus = document.getElementById('recordingStatus');
+            const answerInput = document.getElementById('answerInput');
+
+            // Check if browser supports speech recognition
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('❌ Speech recognition not supported in this browser. Please use Chrome or Edge, or type your answer manually.');
+                return;
+            }
+
+            try {
+                // Create speech recognition instance
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                window.recognition = new SpeechRecognition();
+                
+                // Configure speech recognition
+                window.recognition.continuous = true;
+                window.recognition.interimResults = true;
+                window.recognition.lang = 'en-US';
+                window.recognition.maxAlternatives = 1;
+
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                // Handle speech recognition results
+                window.recognition.onresult = function(event) {
+                    interimTranscript = '';
+                    finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    // Update text area with current transcription
+                    const currentText = answerInput.value;
+                    const baseText = currentText.replace(/\[Speaking...\].*$/, '').trim();
+                    
+                    if (finalTranscript) {
+                        answerInput.value = baseText + (baseText ? ' ' : '') + finalTranscript;
+                    } else if (interimTranscript) {
+                        answerInput.value = baseText + (baseText ? ' ' : '') + '[Speaking...] ' + interimTranscript;
+                    }
+
+                    // Auto-scroll to bottom of textarea
+                    answerInput.scrollTop = answerInput.scrollHeight;
+                };
+
+                // Handle speech recognition start
+                window.recognition.onstart = function() {
+                    isRecording = true;
+                    recordBtn.innerHTML = '⏹️ Stop Recording';
+                    recordBtn.className = 'btn btn-warning';
+                    recordingStatus.textContent = 'Listening...';
+                    
+                    // Add visual indicator
+                    answerInput.style.borderColor = '#f56565';
+                    answerInput.style.boxShadow = '0 0 10px rgba(245, 101, 101, 0.3)';
+                    
+                    showRecordingStatus('🎙️ Recording started - speak now!', 'info');
+                };
+
+                // Handle speech recognition end
+                window.recognition.onend = function() {
+                    isRecording = false;
+                    recordBtn.innerHTML = '🎙️ Record Voice';
+                    recordBtn.className = 'btn btn-danger';
+                    recordingStatus.textContent = 'Ready';
+                    
+                    // Remove visual indicator
+                    answerInput.style.borderColor = '#e2e8f0';
+                    answerInput.style.boxShadow = 'none';
+                    
+                    // Clean up interim text
+                    const currentText = answerInput.value.replace(/\[Speaking...\].*$/, '').trim();
+                    answerInput.value = currentText;
+                    
+                    showRecordingStatus('✅ Recording completed', 'success');
+                };
+
+                // Handle speech recognition errors
+                window.recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    
+                    isRecording = false;
+                    recordBtn.innerHTML = '🎙️ Record Voice';
+                    recordBtn.className = 'btn btn-danger';
+                    recordingStatus.textContent = 'Error';
+                    
+                    // Remove visual indicator
+                    answerInput.style.borderColor = '#e2e8f0';
+                    answerInput.style.boxShadow = 'none';
+                    
+                    let errorMessage = 'Speech recognition error: ';
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage += 'No speech detected. Please speak clearly.';
+                            break;
+                        case 'audio-capture':
+                            errorMessage += 'Microphone access denied or not available.';
+                            break;
+                        case 'not-allowed':
+                            errorMessage += 'Microphone permission denied. Please allow microphone access.';
+                            break;
+                        case 'network':
+                            errorMessage += 'Network error. Please check your connection.';
+                            break;
+                        default:
+                            errorMessage += event.error;
+                    }
+                    
+                    showRecordingStatus('❌ ' + errorMessage, 'error');
+                };
+
+                // Start recognition
+                window.recognition.start();
+
+            } catch (error) {
+                console.error('Speech recognition setup error:', error);
+                showRecordingStatus('❌ Could not start speech recognition: ' + error.message, 'error');
+            }
+        }
+
+        // Start audio-only recording (fallback)
+        function startAudioOnlyRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function(audioStream) {
+                    // Store audio stream for recording
+                    window.audioStream = audioStream;
+                    
+                    // Start speech recognition with audio stream
+                    startSpeechToText();
+                })
+                .catch(function(error) {
+                    console.error('Audio access error:', error);
+                    showRecordingStatus('❌ Cannot access microphone. Please allow microphone permissions.', 'error');
+                });
+        }
+
+        // Stop speech-to-text recognition
+        function stopSpeechToText() {
+            if (window.recognition) {
+                window.recognition.stop();
+            }
+            
+            // Stop audio stream if it exists
+            if (window.audioStream) {
+                window.audioStream.getTracks().forEach(track => track.stop());
+                window.audioStream = null;
+            }
+        }
+
+        // Show recording status messages
+        function showRecordingStatus(message, type) {
+            // Remove existing status
+            const existingStatus = document.querySelector('.recording-status-msg');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            // Create status message
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `recording-status-msg status status-${type}`;
+            statusDiv.style.margin = '10px 0';
+            statusDiv.innerHTML = message;
+            
+            // Add after answer input
+            const answerSection = document.querySelector('.answer-section');
+            answerSection.appendChild(statusDiv);
+            
+            // Auto-remove after 5 seconds for success/info messages
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    if (statusDiv.parentNode) {
+                        statusDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // Submit answer
+        async function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                alert('Please provide an answer');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Rating...';
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/submit-answer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        question_index: currentQuestionIndex,
+                        answer_text: answer
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const rating = result.rating;
+                    
+                    displayRating(rating);
+                    document.getElementById('nextBtn').disabled = false;
+                } else {
+                    alert('Failed to submit answer');
+                }
+            } catch (error) {
+                alert('Error submitting answer: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '✅ Submit Answer';
+            }
+        }
+
+        // Display rating
+        function displayRating(rating) {
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const currentScore = document.getElementById('currentScore');
+            const ratingFeedback = document.getElementById('ratingFeedback');
+
+            const finalScore = rating.final_score || rating.overall_score || 0;
+            
+            currentScore.textContent = finalScore;
+            ratingFeedback.innerHTML = `
+                <div style="margin: 15px 0;">
+                    <strong>📝 Feedback:</strong> ${rating.feedback || 'No feedback available'}
+                </div>
+                ${rating.strengths ? `
+                <div style="margin: 15px 0;">
+                    <strong>✅ Strengths:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        ${rating.strengths.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                ${rating.improvements ? `
+                <div style="margin: 15px 0;">
+                    <strong>📈 Areas for Improvement:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        ${rating.improvements.map(i => `<li>${i}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+
+            ratingDisplay.classList.remove('hidden');
+        }
+
+        // Next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayCurrentQuestion();
+                updateProgress();
+            } else {
+                endInterview();
+            }
+        }
+
+        // End interview
+        async function endInterview() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/end-interview`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayResults(result.results);
+                    
+                    // Stop camera and tracking
+                    if (videoStream) {
+                        videoStream.getTracks().forEach(track => track.stop());
+                        videoStream = null;
+                    }
+                    if (trackingInterval) {
+                        clearInterval(trackingInterval);
+                        trackingInterval = null;
+                    }
+                    
+                    // Switch to results view
+                    document.getElementById('interview-section').classList.add('hidden');
+                    document.getElementById('results-section').classList.remove('hidden');
+                } else {
+                    alert('Failed to end interview');
+                }
+            } catch (error) {
+                alert('Error ending interview: ' + error.message);
+            }
+        }
+
+        // Display results
+        function displayResults(results) {
+            document.getElementById('overallScore').textContent = 
+                `${results.overall_score || 0}/10`;
+
+            const detailedResults = document.getElementById('detailedResults');
+            
+            // Performance summary
+            const performanceCategory = results.performance_category || 'unknown';
+            const categoryText = {
+                'excellent': '🌟 Excellent',
+                'very_good': '👍 Very Good',
+                'good': '✅ Good', 
+                'satisfactory': '🔶 Satisfactory',
+                'needs_improvement': '⚠️ Needs Improvement',
+                'poor': '❌ Poor'
+            }[performanceCategory] || '❓ Unknown';
+
+            detailedResults.innerHTML = `
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Performance Summary</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; color: #667eea;">${results.overall_score || 0}</div>
+                            <div>Overall Score</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5em; color: #667eea;">${categoryText}</div>
+                            <div>Performance Level</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5em; color: #667eea;">${results.interview_duration_minutes?.toFixed(1) || 0} min</div>
+                            <div>Interview Duration</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5em; color: #667eea;">${results.completion_rate?.toFixed(0) || 0}%</div>
+                            <div>Completion Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${results.detailed_scores ? `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 15px;">📊 Detailed Performance</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        ${Object.entries(results.detailed_scores).map(([category, score]) => `
+                            <div style="text-align: center; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 10px;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #667eea; margin-bottom: 5px;">
+                                    ${score}/10
+                                </div>
+                                <div style="font-size: 0.9em; text-transform: capitalize;">
+                                    ${category.replace('_', ' ')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                ${results.question_analysis ? `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 15px;">🎯 Performance by Question Type</h3>
+                    ${Object.entries(results.question_analysis).map(([type, data]) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
+                            <span style="font-weight: 600; text-transform: capitalize;">${type}:</span>
+                            <div>
+                                <span style="font-size: 1.2em; color: #667eea; font-weight: bold;">${data.average_score}/10</span>
+                                <span style="color: #666; margin-left: 10px;">(${data.question_count} questions)</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                ${results.tracking_summary ? `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 15px;">👁️ Eye Tracking Summary</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="text-align: center; padding: 15px; background: rgba(72, 187, 120, 0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; color: #48bb78;">${results.tracking_summary.avg_eye_contact || 0}%</div>
+                            <div>Average Eye Contact</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: rgba(237, 137, 54, 0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; color: #ed8936;">${results.tracking_summary.avg_face_visibility || 0}%</div>
+                            <div>Face Visibility</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; color: #667eea;">${results.tracking_summary.blink_rate_per_minute || 0}</div>
+                            <div>Blinks per Minute</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${results.recommendations && results.recommendations.length > 0 ? `
+                <div style="background: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d3748; margin-bottom: 15px;">💡 Personalized Recommendations</h3>
+                    <ul style="line-height: 2; margin-left: 20px;">
+                        ${results.recommendations.map(rec => `<li style="margin: 8px 0;">${rec}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // New interview
+        function newInterview() {
+            // Reset all variables
+            sessionId = null;
+            questions = [];
+            currentQuestionIndex = 0;
+            
+            // Stop camera if running
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            // Stop tracking
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            
+            // Reset UI
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('interview-section').classList.add('hidden');
+            document.getElementById('setup-section').classList.remove('hidden');
+            document.getElementById('questionsPreview').classList.add('hidden');
+            
+            // Reset form
+            document.getElementById('resumeFile').value = '';
+            document.getElementById('jdFile').value = '';
+            document.getElementById('resumeStatus').innerHTML = '';
+            document.getElementById('jdStatus').innerHTML = '';
+            document.getElementById('processBtn').disabled = true;
+            
+            // Check backend status again
+            checkBackendStatus();
+        }
+
+        // Export results
+        async function exportResults() {
+            if (!sessionId) {
+                alert('No session data to export');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/export-results/${sessionId}`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `interview_results_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('Failed to export results');
+                }
+            } catch (error) {
+                alert('Error exporting results: ' + error.message);
+            }
+        }
+
+        // Utility function to show status messages
+        function showStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status status-${type}`;
+            element.textContent = message;
+        }
+
+        // Handle page visibility change (pause tracking when tab not active)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            } else if (!document.hidden && sessionId && videoStream && !trackingInterval) {
+                trackingInterval = setInterval(updateTrackingMetrics, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
